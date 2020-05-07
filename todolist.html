@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+
+  <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.2/firebase-firestore.js"></script>
+  <script
+  src="https://code.jquery.com/jquery-3.5.0.slim.min.js"
+  integrity="sha256-MlusDLJIP1GRgLrOflUQtshyP0TwT/RHXsI1wWGnQhs="
+  crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+  <style media="screen">
+    .done{
+      text-decoration: line-through;
+    }
+  </style>
+  </head>
+  <body>
+<main class="container">
+<h1 id="title">
+  To-do List
+</h1>
+
+
+<ol class="list-group" id="list">
+</ol>
+
+<form  id="form">
+
+
+  <div class="form-group">
+  <label for="title">Task title</label>
+  <input type="text" class="form-control" id="title" name="title" aria-describedby="emailHelp">
+  <small id="titlehelp" class="form-text text-muted">enter title</small>
+</div>
+
+
+
+  <div class="form-group">
+   <label for="exampleFormControlTextarea1">Details of task</label>
+   <textarea class="form-control" id="exampleFormControlTextarea1" name="details" rows="3"></textarea>
+ </div>
+
+  <button type="submit" class="btn btn-primary mb-2">Create Task</button>
+</form>
+
+</main>
+
+<script>
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBFJHZpgnmFUwKWmaeHjzwRQFvyQzegX7A",
+    authDomain: "list---js.firebaseapp.com",
+    databaseURL: "https://list---js.firebaseio.com",
+    projectId: "list---js",
+    storageBucket: "list---js.appspot.com",
+    messagingSenderId: "1085206112643",
+    appId: "1:1085206112643:web:38d9d4ed31bf6989912eb6"
+  };
+  // Initialize Firebase
+
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+
+
+
+
+const onChange = function(tasks) {
+$("#list").empty()
+  tasks.forEach(function(task) {
+    console.log(task.id)
+    console.log(task.data())
+    const taskContent = task.data()
+    console.log(taskContent.title)
+
+    $("#list").prepend(`<li class="${taskContent.status ? "done" : "todo"} list-group-item list-group-item-action">${taskContent.title} <button onclick="onUpdate('${task.id}')" type="button" name="update">Update</button> <button onclick="onDelete('${task.id}')" type="button" name="delete">Delete</button></li>`)
+  })
+
+}
+
+const onUpdate = function(id){
+  db.collection("tasks").doc(id).update({
+    status:true
+  })
+}
+
+const onDelete = function(id) {
+  console.log(id)
+  db.collection("tasks").doc(id).delete()
+}
+
+const onSubmitTask = function(event) {
+  event.preventDefault()
+  const formData = new FormData(this)
+  db.collection("tasks").add({
+    title: formData.get("title"),
+    body: formData.get("details"),
+    status: false,
+    timestamp: new Date().getTime(),
+  })
+}
+
+
+
+db.collection("tasks").orderBy("timestamp").onSnapshot(onChange)
+
+$("#form").on("submit", onSubmitTask);
+
+
+
+
+</script>
+
+  </body>
+</html>
